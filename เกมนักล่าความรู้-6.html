@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>นักล่าความรู้ | เกมการศึกษา</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(135deg,#dbeafe,#ede9fe,#f0fdf4);color:#172033;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:14px}
+#app{width:100%;max-width:780px}.card{background:rgba(255,255,255,.97);border:1px solid #dbe4f0;border-radius:26px;padding:25px;box-shadow:0 20px 60px rgba(30,64,175,.14)}
+.logo{font-size:66px;text-align:center;animation:float 2.5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+h1{font-size:34px;text-align:center;margin:5px 0}.sub{text-align:center;color:#64748b;line-height:1.6}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.info div{background:#f8fafc;border-radius:15px;padding:13px;text-align:center}.info b{display:block;font-size:20px;color:#2563eb}.info span{font-size:12px;color:#64748b}
+.btn{border:0;border-radius:15px;padding:14px 20px;background:#2563eb;color:#fff;font-size:16px;font-weight:800;cursor:pointer;width:100%;transition:.15s}.btn:hover{filter:brightness(.94);transform:translateY(-1px)}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.pill{padding:8px 12px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:13px}
+.progress{height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:8px 0 22px}.progress>div{height:100%;background:#2563eb;transition:.3s}
+.question{font-size:23px;font-weight:850;line-height:1.45;margin:16px 0 20px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer{border:2px solid #e2e8f0;background:#fff;border-radius:15px;padding:15px;text-align:left;font-size:15px;cursor:pointer;min-height:65px;transition:.15s}.answer:hover{border-color:#93c5fd;background:#f8fbff}.answer:disabled{cursor:default}.answer.correct{border-color:#22c55e;background:#dcfce7}.answer.wrong{border-color:#ef4444;background:#fee2e2}
+.feedback{margin-top:15px;padding:14px;border-radius:14px;background:#f8fafc;line-height:1.55;color:#475569}.next{margin-top:12px}
+.result{text-align:center}.medal{font-size:68px}.score{font-size:60px;font-weight:900;color:#2563eb;margin:5px}.bar{height:15px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:14px 0}.bar div{height:100%;background:#2563eb}
+.review{text-align:left;margin-top:22px}.review-item{padding:11px 0;border-bottom:1px solid #e2e8f0;font-size:14px}.good{color:#15803d;font-weight:800}.bad{color:#b91c1c;font-weight:800}
+.sound{display:flex;align-items:center;gap:7px;font-size:13px;color:#64748b}.sound button{border:1px solid #dbe4f0;background:#fff;border-radius:10px;padding:7px 10px;cursor:pointer}
+@media(max-width:600px){body{padding:8px}.card{padding:19px;border-radius:21px}h1{font-size:28px}.answers{grid-template-columns:1fr}.question{font-size:20px}.info{gap:6px}}
+</style>
+</head>
+<body>
+<div id="app"><div class="card" id="screen"></div></div>
+<script>
+const questions=[
+{q:"ข้อใดเป็นพลังงานหมุนเวียน?",a:["ถ่านหิน","น้ำมันดิบ","พลังงานแสงอาทิตย์","ก๊าซธรรมชาติ"],c:2,e:"พลังงานแสงอาทิตย์สามารถเกิดขึ้นใหม่ได้อย่างต่อเนื่อง จึงเป็นพลังงานหมุนเวียน"},
+{q:"น้ำเดือดที่ระดับน้ำทะเลประมาณกี่องศาเซลเซียส?",a:["50°C","75°C","100°C","150°C"],c:2,e:"ที่ความดันบรรยากาศปกติ น้ำเดือดที่ประมาณ 100°C"},
+{q:"ข้อใดเป็นการตั้งรหัสผ่านที่ปลอดภัยกว่า?",a:["123456","ชื่อและวันเกิด","password","รหัสยาวที่มีตัวอักษร ตัวเลข และสัญลักษณ์"],c:3,e:"รหัสผ่านที่ยาวและผสมตัวอักษร ตัวเลข และสัญลักษณ์จะคาดเดาได้ยากกว่า"},
+{q:"หน่วยพื้นฐานของสิ่งมีชีวิตคืออะไร?",a:["อะตอม","เซลล์","อวัยวะ","ระบบอวัยวะ"],c:1,e:"เซลล์เป็นหน่วยโครงสร้างและการทำงานพื้นฐานของสิ่งมีชีวิต"},
+{q:"ข้อใดช่วยลดปริมาณขยะพลาสติกได้ดีที่สุด?",a:["ใช้ถุงใหม่ทุกครั้ง","ใช้ถุงผ้าหรือภาชนะที่นำกลับมาใช้ซ้ำ","ทิ้งขยะรวมกัน","เผาพลาสติกทุกชนิด"],c:1,e:"การใช้ของที่นำกลับมาใช้ซ้ำช่วยลดการใช้พลาสติกแบบครั้งเดียวทิ้ง"},
+{q:"ข้อใดเป็นตัวอย่างการใช้ AI ในชีวิตประจำวัน?",a:["ไม้บรรทัด","ระบบแนะนำวิดีโอ","สมุดโน้ต","ยางลบ"],c:1,e:"ระบบแนะนำวิดีโอสามารถใช้ข้อมูลและแบบจำลองเพื่อคาดการณ์สิ่งที่ผู้ใช้น่าจะสนใจ"},
+{q:"ก่อนแชร์ข่าวบนอินเทอร์เน็ต ควรทำสิ่งใดก่อน?",a:["แชร์ทันที","ตรวจสอบแหล่งที่มาและข้อมูล","ดูเฉพาะพาดหัว","ส่งต่อให้เพื่อนโดยไม่ตรวจสอบ"],c:1,e:"ควรตรวจสอบแหล่งที่มา วันที่ และข้อมูลจากแหล่งที่น่าเชื่อถือก่อนแชร์"},
+{q:"ข้อใดช่วยประหยัดไฟฟ้าได้?",a:["เปิดไฟทิ้งไว้","เปิดแอร์พร้อมเปิดหน้าต่าง","ปิดเครื่องใช้ไฟฟ้าเมื่อไม่ใช้งาน","เสียบปลั๊กทุกเครื่องตลอดเวลา"],c:2,e:"การปิดเครื่องใช้ไฟฟ้าเมื่อไม่ใช้งานช่วยลดการใช้พลังงานที่ไม่จำเป็น"},
+{q:"โลกโคจรรอบสิ่งใด?",a:["ดวงจันทร์","ดวงอาทิตย์","ดาวอังคาร","ดาวเหนือ"],c:1,e:"โลกโคจรรอบดวงอาทิตย์ และใช้เวลาประมาณ 1 ปีต่อหนึ่งรอบ"},
+{q:"หากมีคนออนไลน์ขอรหัส OTP ของเรา ควรทำอย่างไร?",a:["ส่งให้ทันที","โพสต์ลงสาธารณะ","ไม่เปิดเผยและตรวจสอบผู้ติดต่อ","ส่งให้เพื่อนก่อน"],c:2,e:"OTP เป็นข้อมูลสำคัญ ไม่ควรเปิดเผยให้ผู้อื่น แม้อ้างว่าเป็นเจ้าหน้าที่ก็ตาม"}
+];
+
+let index=0,score=0,lives=3,locked=false,history=[],soundOn=true,audioCtx=null;
+
+function beep(type){
+ if(!soundOn)return;
+ try{
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.connect(g);g.connect(audioCtx.destination);
+  const good=type==="good", end=type==="end";
+  o.frequency.value=end?523:(good?740:190);
+  o.type=good?"sine":"square";
+  g.gain.setValueAtTime(.0001,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.12,audioCtx.currentTime+.015);
+  g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+(end?.5:.18));
+  o.start();o.stop(audioCtx.currentTime+(end?.5:.18));
+ }catch(e){}
+}
+function toggleSound(){soundOn=!soundOn;renderCurrent()}
+function startGame(){index=0;score=0;lives=3;history=[];beep("good");showQuestion()}
+function showStart(){
+document.getElementById("screen").innerHTML=`
+<div class="logo">🧠</div><h1>นักล่าความรู้</h1>
+<p class="sub">เกมตอบคำถามเพื่อเรียนรู้ความรู้รอบตัว<br>ตอบให้ถูก สะสมคะแนน และรักษาหัวใจของคุณ!</p>
+<div class="info"><div><b>10</b><span>คำถาม</span></div><div><b>❤️ 3</b><span>หัวใจ</span></div><div><b>100</b><span>คะแนนเต็ม</span></div></div>
+<button class="btn" onclick="startGame()">🎮 เริ่มเกม</button>
+<div class="sound" style="justify-content:center;margin-top:14px">🔊 เสียงเอฟเฟกต์ <button onclick="toggleSound()">${soundOn?"เปิด":"ปิด"}</button></div>`;
+}
+function renderCurrent(){if(index<questions.length)showQuestion();else showResult()}
+function showQuestion(){
+if(index>=questions.length||lives<=0){showResult();return}
+locked=false;const x=questions[index],pct=index/questions.length*100;
+document.getElementById("screen").innerHTML=`
+<div class="top"><span class="pill">ด่าน ${index<4?1:index<7?2:3}</span>
+<span class="pill">⭐ ${score} คะแนน &nbsp; ${"❤️".repeat(lives)}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-top:10px"><span>ความคืบหน้า</span><b>${index+1}/${questions.length}</b></div>
+<div class="progress"><div style="width:${pct}%"></div></div>
+<div class="question">${x.q}</div>
+<div class="answers">${x.a.map((v,n)=>`<button class="answer" onclick="answer(${n})">${String.fromCharCode(65+n)}. ${v}</button>`).join("")}</div>
+<div id="feedback" aria-live="polite"></div>
+<div class="sound" style="justify-content:flex-end;margin-top:13px">🔊 <button onclick="toggleSound()">${soundOn?"เสียงเปิด":"เสียงปิด"}</button></div>`;
+}
+function answer(n){
+if(locked)return;locked=true;const x=questions[index],buttons=document.querySelectorAll(".answer");buttons.forEach(b=>b.disabled=true);
+const correct=n===x.c;
+if(correct){score+=10;buttons[n].classList.add("correct");beep("good")}else{lives--;buttons[n].classList.add("wrong");buttons[x.c].classList.add("correct");beep("bad")}
+history.push({q:x.q,correct,chosen:x.a[n],right:x.a[x.c]});
+document.getElementById("feedback").innerHTML=`<div class="feedback">${correct?"✅":"❌"} <b>${correct?"ถูกต้อง! +10 คะแนน":"ตอบผิด!"}</b><br>${x.e}</div>
+<button class="btn next" onclick="nextQuestion()">${index===questions.length-1||lives<=0?"🏆 ดูผลคะแนน":"ข้อต่อไป →"}</button>`;
+}
+function nextQuestion(){index++;showQuestion()}
+function showResult(){
+let medal="📚",title="พยายามได้ดี!";
+if(score>=90){medal="🏆";title="สุดยอดนักล่าความรู้!"}else if(score>=70){medal="🥇";title="เก่งมาก!"}else if(score>=50){medal="🌟";title="ทำได้ดี!"}
+beep("end");
+const correct=history.filter(x=>x.correct).length;
+document.getElementById("screen").innerHTML=`
+<div class="result"><div class="medal">${medal}</div><h1>${title}</h1><p class="sub">สรุปผลการเล่นของคุณ</p>
+<div class="score">${score}<span style="font-size:22px;color:#64748b"> / 100</span></div>
+<div class="bar"><div style="width:${score}%"></div></div>
+<div class="info"><div><b>${correct}</b><span>ตอบถูก</span></div><div><b>${10-correct}</b><span>ตอบผิด</span></div><div><b>${lives}</b><span>หัวใจเหลือ</span></div></div>
+<p class="sub">${score>=70?"ยอดเยี่ยม! คุณมีพื้นฐานความรู้ที่ดีมาก":"ลองเล่นอีกครั้งและอ่านคำอธิบายเพื่อเพิ่มคะแนน"}</p>
+<button class="btn" onclick="startGame()">🔄 เล่นอีกครั้ง</button>
+<div class="review"><h3>📖 ทบทวนคำตอบ</h3>${history.map((h,i)=>`<div class="review-item"><b>${i+1}. ${h.q}</b><br><span class="${h.correct?"good":"bad"}">${h.correct?"✓ ถูก":"✗ ผิด"}</span>${h.correct?"":" — คำตอบที่ถูก: "+h.right}</div>`).join("")}</div>
+<div class="sound" style="justify-content:center;margin-top:14px">🔊 เสียงเอฟเฟกต์ <button onclick="toggleSound()">${soundOn?"เปิด":"ปิด"}</button></div>
+</div>`;
+}
+showStart();
+</script>
+</body>
+</html>
